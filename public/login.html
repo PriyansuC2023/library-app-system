@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Library Login</title>
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #e9eef5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-card {
+            background: #fff;
+            padding: 25px;
+            width: 350px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #1e88e5;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background: #1565c0;
+        }
+
+        .register-btn {
+            background: #00acc1;
+            margin-top: 10px;
+        }
+
+        .register-btn:hover {
+            background: #00838f;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-card">
+    <h2>Login</h2>
+
+    <form id="loginForm" autocomplete="off">
+        <input type="text" id="username" placeholder="Username" required autocomplete="off" />
+        <input type="password" id="password" placeholder="Password" required autocomplete="new-password" />
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p style="text-align:center;margin-top:10px;">Don't have an account?</p>
+    <button class="register-btn" onclick="window.location.href='register.html'">Register</button>
+
+    <div class="error" id="errorMsg"></div>
+</div>
+
+<script>
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+
+        errorMsg.textContent = '';
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                errorMsg.textContent = data.message || "Login failed";
+                return;
+            }
+
+            // ✅ Save token and username
+            localStorage.setItem('library_token', data.token);
+            localStorage.setItem('library_user', username);
+
+            // ✅ Redirect to main page
+            window.location.href = '/index.html';
+
+        } catch (err) {
+            errorMsg.textContent = "Server error. Try again.";
+            console.error(err);
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Library App</title>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+<script>
+    // Redirect to login page if user is NOT logged in
+    if (!localStorage.getItem("token")) {
+        window.location.href = "/login";
+    }
+</script>
+
+<h1 style="text-align:center;">📚 Library Management</h1>
+
+<!-- Top bar with username + logout -->
+<div style="display:flex; justify-content:flex-end; padding:10px;">
+    <span id="userDisplay" style="margin-right:10px; font-weight:bold;"></span>
+    <button id="logoutBtn" style="padding:5px 10px;">Logout</button>
+</div>
+
+<!-- Add Book Form (visible only when logged in) -->
+<div class="card" style="max-width:400px; margin:20px auto;">
+    <h2>Add a New Book</h2>
+
+    <form id="addBookForm">
+        <input name="title" placeholder="Title" required />
+        <input name="author" placeholder="Author" />
+        <input name="category" placeholder="Category" />
+        <textarea name="description" placeholder="Description"></textarea>
+        <input name="pdf_url" placeholder="PDF URL" />
+
+        <button type="submit">Add Book</button>
+    </form>
+</div>
+
+<!-- Book List -->
+<div class="card" style="max-width:600px; margin:20px auto;">
+    <h2>All Books</h2>
+    <div id="booksList"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
