@@ -1,7 +1,8 @@
-// public/app.js
+// ================= CONFIG =================
 
-const BACKEND_BASE = "http://shortline.proxy.rlwy.net:24579";
-const API_BASE = BACKEND_BASE + "/api/books";
+// Backend is on the SAME Render service as the frontend:
+const BACKEND_BASE = "";             // same origin
+const API_BASE = "/api/books";       // no full URL needed
 
 
 // ================= AUTH HELPERS =================
@@ -183,7 +184,7 @@ async function handleLogin(event) {
     }
 
     try {
-        const res = await fetch(BACKEND_BASE + '/api/auth/login', {
+        const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -201,9 +202,7 @@ async function handleLogin(event) {
         setUsername(username);
 
         alert('Login successful ✅');
-
-        // ✅ Redirect after login
-        window.location.href = "index.html";
+        window.location.href = 'index.html';
 
     } catch (err) {
         console.error('Login error:', err);
@@ -225,7 +224,7 @@ function initAuthUI() {
         logoutBtn.onclick = () => {
             setToken(null);
             setUsername(null);
-            window.location.href = "login.html";
+            window.location.href = 'login.html';
         };
     }
 
@@ -243,17 +242,16 @@ function initAuthUI() {
 // ================= BOOT =================
 
 document.addEventListener('DOMContentLoaded', () => {
-
     const isLoginPage = window.location.pathname.includes('login');
 
     if (!getToken()) {
         if (!isLoginPage) {
-            window.location.href = "login.html";
+            window.location.href = 'login.html';
             return;
         }
     } else {
         if (isLoginPage) {
-            window.location.href = "index.html";
+            window.location.href = 'index.html';
             return;
         }
     }
