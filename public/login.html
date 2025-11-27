@@ -81,6 +81,8 @@
 </div>
 
 <script>
+    const BACKEND_URL = "https://library-app-system.onrender.com";
+
     const form = document.getElementById('loginForm');
     const errorMsg = document.getElementById('errorMsg');
 
@@ -92,15 +94,13 @@
         errorMsg.textContent = '';
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password })
             });
 
             const data = await response.json();
-            console.log('STATUS:', response.status);
-            console.log('DATA:', data);
 
             if (!response.ok) {
                 errorMsg.textContent = data.message || "Login failed";
@@ -110,14 +110,13 @@
             localStorage.setItem('library_token', data.token);
             localStorage.setItem('library_user', username);
 
-            window.location.href = 'index.html';
+            // ✅ Redirect now works
+            window.location.href = '/index.html';
 
         } catch (err) {
             errorMsg.textContent = "Server error. Try again.";
             console.error(err);
         }
-
-
     });
 </script>
 
