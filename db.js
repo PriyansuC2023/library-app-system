@@ -1,11 +1,15 @@
-const mysql = require('mysql2');
+// db.js
+const mysql = require("mysql2");
 
+// 🔴 For simplicity, we hard-code the Railway credentials here.
+// (These are the same details that appear in your Railway "Connect" tab)
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT
+    host: "shortline.proxy.rlwy.net",          // your Railway host
+    user: "root",                              // your Railway user
+    password: "mapcwHLpKaHZGVtvGpQMmvCLldbiXeqT", // your Railway password
+    database: "railway",                       // your DB name
+    port: 24579,                               // your Railway port
+    ssl: { rejectUnauthorized: false }         // needed for Railway TLS
 });
 
 db.connect((err) => {

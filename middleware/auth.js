@@ -48,67 +48,34 @@ router.post("/register", (req, res) => {
    POST /auth/login
    body: { username, password }
    =========================== */
-router.post("/login", (req, res) => {
+router.post('/login', (req, res) => {
     const { username, password } = req.body;
 
-    // Make sure frontend actually sent data
-    if (!username || !password) {
-        return res.status(400).json({ message: "Missing fields" });
-    }
-
-    const sql = "SELECT * FROM users WHERE username = ?";
-
-    db.query(sql, [username], (err, data) => {
+    db.query('SELECT * FROM users WHERE username = ?', [username], (err, data) => {
         if (err) {
-            console.error("Login DB error:", err);
-            return res.status(500).json({ message: "DB error" });
+            console.error("LOGIN DB ERROR:", err);
+            return res.status(500).json({ message: 'DB error' });
         }
 
-        // Username not found
         if (data.length === 0) {
-            return res.status(401).json({ message: "Invalid credentials" });
+            return res.status(401).json({ message: 'User not found' });
         }
 
         const user = data[0];
 
-        // If password in DB is bcrypt hash, use bcrypt.compare.
-        // If it's plain text (old row you inserted manually), fall back to direct compare.
-        let isCorrect = false;
-        try {
-            if (typeof user.password === "string" && user.password.startsWith("$2")) {
-                // looks like a bcrypt hash
-                isCorrect = bcrypt.compareSync(password, user.password);
-            } else {
-                // plain text password stored (not recommended, but handle it)
-                isCorrect = password === user.password;
-            }
-        } catch (e) {
-            console.error("Password compare error:", e);
-            return res.status(500).json({ message: "Server error" });
+        // because your DB currently stores password as plain text (admin123),
+        // we just compare directly for now:
+        if (password !== user.password) {
+            return res.status(401).json({ message: 'Wrong password' });
         }
 
-        if (!isCorrect) {
-            return res.status(401).json({ message: "Invalid credentials" });
-        }
-
-        // Create JWT token
         const token = jwt.sign(
-            {
-                id: user.id,
-                username: user.username,
-            },
+            { id: user.id, username: user.username },
             JWT_SECRET,
-            { expiresIn: "8h" }
+            { expiresIn: '8h' }
         );
 
-        return res.json({
-            message: "Logged in",
-            token,
-            user: {
-                id: user.id,
-                username: user.username,
-            },
-        });
+        res.json({ message: 'Logged in successfully', token });
     });
 });
 
