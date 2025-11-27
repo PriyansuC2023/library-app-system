@@ -1,10 +1,13 @@
 // public/app.js
 
-const API_BASE = '/api/books';
+const BACKEND_BASE = "http://shortline.proxy.rlwy.net:24579";
+const API_BASE = BACKEND_BASE + "/api/books";
 
-// ----------------- AUTH HELPERS -----------------
-const TOKEN_KEY = 'library_token';
-const USER_KEY = 'library_user';
+
+// ================= AUTH HELPERS =================
+
+const TOKEN_KEY = "library_token";
+const USER_KEY = "library_user";
 
 function getToken() {
     return localStorage.getItem(TOKEN_KEY);
@@ -26,17 +29,19 @@ function getUsername() {
 
 function getAuthHeaders() {
     const token = getToken();
-    return token ? { Authorization: 'Bearer ' + token } : {};
+    return token ? { Authorization: "Bearer " + token } : {};
 }
 
 function handleUnauthorized() {
     setToken(null);
     setUsername(null);
-    alert('Session expired or not authorized. Please login.');
-    window.location.href = '/login.html';
+    alert("Session expired or not authorized. Please login.");
+    window.location.href = "login.html";
 }
 
-// ----------------- DOM HELPERS -----------------
+
+// ================= DOM HELPERS =================
+
 const $ = (sel) => document.querySelector(sel);
 
 function getBooksContainer() {
@@ -59,7 +64,9 @@ function getInputValue(idOrName) {
     return '';
 }
 
-// ----------------- LOAD BOOKS -----------------
+
+// ================= LOAD BOOKS =================
+
 async function loadBooks() {
     const container = getBooksContainer();
     container.innerHTML = 'Loading...';
@@ -68,6 +75,7 @@ async function loadBooks() {
         const res = await fetch(API_BASE, { headers: getAuthHeaders() });
 
         if (res.status === 401) return handleUnauthorized();
+
         if (!res.ok) {
             container.innerHTML = `<div style="color:red">Failed to load books</div>`;
             return;
@@ -93,11 +101,14 @@ async function loadBooks() {
         `).join('');
 
     } catch (err) {
+        console.error(err);
         container.innerHTML = 'Error loading books';
     }
 }
 
-// ----------------- ADD BOOK -----------------
+
+// ================= ADD BOOK =================
+
 async function addBook(event) {
     event.preventDefault();
 
@@ -130,12 +141,14 @@ async function addBook(event) {
         return;
     }
 
-    alert('Book added successfully');
+    alert('Book added successfully ✅');
     if (getAddForm()) getAddForm().reset();
     loadBooks();
 }
 
-// ----------------- DELETE BOOK -----------------
+
+// ================= DELETE BOOK =================
+
 async function deleteBook(id) {
     if (!confirm('Delete this book?')) return;
 
@@ -151,11 +164,13 @@ async function deleteBook(id) {
         return;
     }
 
-    alert('Book deleted');
+    alert('Book deleted ✅');
     loadBooks();
 }
 
-// ----------------- LOGIN -----------------
+
+// ================= LOGIN =================
+
 async function handleLogin(event) {
     event.preventDefault();
 
@@ -167,24 +182,33 @@ async function handleLogin(event) {
         return;
     }
 
-    const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
+    try {
+        const res = await fetch(BACKEND_BASE + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
+        console.log("Login response:", res.status, data);
 
-    if (!res.ok) {
-        alert(data.message || 'Login failed');
-        return;
+        if (!res.ok) {
+            alert(data.message || 'Login failed');
+            return;
+        }
+
+        setToken(data.token);
+        setUsername(username);
+
+        alert('Login successful ✅');
+
+        // ✅ Redirect after login
+        window.location.href = "index.html";
+
+    } catch (err) {
+        console.error('Login error:', err);
+        alert('Server error');
     }
-
-    setToken(data.token);
-    setUsername(username);
-
-    alert('Login successful');
-    window.location.href = '/index.html';
 }
 
 function initLoginPage() {
@@ -192,14 +216,18 @@ function initLoginPage() {
     if (form) form.addEventListener('submit', handleLogin);
 }
 
-// ----------------- INIT UI -----------------
+
+// ================= AUTH UI =================
+
 function initAuthUI() {
     const logoutBtn = $('#logoutBtn');
-    if (logoutBtn) logoutBtn.onclick = () => {
-        setToken(null);
-        setUsername(null);
-        window.location.href = '/login.html';
-    };
+    if (logoutBtn) {
+        logoutBtn.onclick = () => {
+            setToken(null);
+            setUsername(null);
+            window.location.href = "login.html";
+        };
+    }
 
     const userDisplay = $('#userDisplay');
     if (userDisplay) {
@@ -211,29 +239,37 @@ function initAuthUI() {
     if (addForm) addForm.addEventListener('submit', addBook);
 }
 
-// ----------------- BOOT -----------------
+
+// ================= BOOT =================
+
 document.addEventListener('DOMContentLoaded', () => {
+
     const isLoginPage = window.location.pathname.includes('login');
 
     if (!getToken()) {
         if (!isLoginPage) {
-            window.location.href = '/login.html';
+            window.location.href = "login.html";
             return;
         }
     } else {
         if (isLoginPage) {
-            window.location.href = '/index.html';
+            window.location.href = "index.html";
             return;
         }
     }
 
     initAuthUI();
 
-    if (!isLoginPage) loadBooks();
-    else initLoginPage();
+    if (!isLoginPage) {
+        loadBooks();
+    } else {
+        initLoginPage();
+    }
 });
 
-// ----------------- UTILITIES -----------------
+
+// ================= UTILITIES =================
+
 function escapeHtml(str = '') {
     return String(str)
         .replace(/&/g, '&amp;')
@@ -246,6 +282,7 @@ function escapeHtml(str = '') {
 function escapeAttr(str = '') {
     return escapeHtml(str);
 }
+
 
 // Expose globally
 window.deleteBook = deleteBook;
