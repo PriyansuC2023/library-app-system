@@ -47,6 +47,19 @@ app.get('/test', (req, res) => {
     res.send('✅ SERVER WORKING');
 });
 
+// ✅ DATABASE TEST ROUTE
+app.get('/db-test', (req, res) => {
+    const db = require('./db');
+
+    db.query('SELECT 1', (err, result) => {
+        if (err) {
+            console.error("DB Test Failed:", err);
+            return res.status(500).json(err);
+        }
+        res.json({ status: "✅ DB OK" });
+    });
+});
+
 
 // ================== API ROUTES ==================
 
