@@ -80,7 +80,45 @@
     <div class="error" id="errorMsg"></div>
 </div>
 
-<script src="app.js"></script>
+<script>
+    const BACKEND_URL = "https://shortline.proxy.rlwy.net:24579";
+
+    const form = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        errorMsg.textContent = '';
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                errorMsg.textContent = data.message || "Login failed";
+                return;
+            }
+
+            localStorage.setItem('library_token', data.token);
+            localStorage.setItem('library_user', username);
+
+            // ✅ Redirect now works
+            window.location.href = '/index.html';
+
+        } catch (err) {
+            errorMsg.textContent = "Server error. Try again.";
+            console.error(err);
+        }
+    });
+</script>
 
 
 </body>

@@ -264,9 +264,9 @@ document.addEventListener("DOMContentLoaded", () => {
     initAuthUI();
 
     if (!isLoginPage) {
-        loadBooks();
-    } else {
         initLoginPage();
+    } else {
+        loadBooks();
     }
 });
 
